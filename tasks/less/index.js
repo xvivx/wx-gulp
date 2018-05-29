@@ -4,11 +4,12 @@ const less = require('gulp-less');
 const rename = require('gulp-rename');
 const plumer = require('gulp-plumber');
 const runSequence = require('run-sequence');
+const appName = require('../../config').appName;
 
 
-module.exports = (globs) => {
+module.exports = (entry, output) => {
     return (
-        gulp.src(globs)
+        gulp.src(entry)
             .pipe(plumer({
                 errorHandler: function (err) {
                     console.log(err);
@@ -19,6 +20,6 @@ module.exports = (globs) => {
             .pipe(rename({
                 extname: '.wxss'
             }))
-            .pipe(gulp.dest('src'))
+            .pipe(gulp.dest(output || appName))
     );
 }

@@ -1,6 +1,6 @@
 const path = require('path');
-const appName = 'src';
-const appRootPath = path.resolve(__dirname, 'src');
+const appName = 'app';
+const appRootPath = path.resolve(__dirname, appName);
 
 module.exports = {
     appName: appName,

@@ -13,11 +13,17 @@ new Watch().startWatch(dirs.appRootDir);
 
 // gulp tasks
 gulp.task('watch:less', () => {
-    const lessGlobs = [appName + '/**/*.less', `!${appName}/common/**/*.less`];
-
-    return gulpWatch(__dirname + '/src/**/*.less', (detail) => {
-        return less(lessGlobs);
+    return gulpWatch(`${__dirname}/${appName}/**/*.less`, (detail) => {
+        const entry = appName + detail.path.split(appName)[1];
+        const output = entry.replace(/\/\w+\.less$/, '');
+        return less(entry, output);
     });
 });
 
-gulp.task('default', ['watch:less']);
+gulp.task('less', () => {
+    const lessGlobs = [appName + '/**/*.less', `!${appName}/common/**/*.less`];
+    
+    return less(lessGlobs);
+})
+
+gulp.task('default', ['less', 'watch:less']);
