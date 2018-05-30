@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const dirs = require('../../config').dirs;
 const getPackageIndex = require('./updateAppJson').getPackageIndex;
-const console = require('../../utils/log');
+const print = require('../../utils/log').log;
 
 module.exports = {
     add(fileDir, fileName) {
@@ -22,7 +22,21 @@ module.exports = {
         fs.writeFileSync(dirs.configJsonDir, JSON.stringify(configJson, null, 4));
     }, 
     del(fileDir) {
-        const configJson = JSON.parse(fs.readFileSync(dirs.configJsonDir, { encoding: 'utf8' }));
+        let configJson = null;
+        let jsonContent = null;
+
+        try {
+            const jsonContent = fs.readFileSync(dirs.configJsonDir, { encoding: 'utf8' });
+
+            configJson = JSON.parse(jsonContent);
+        } catch (e) {
+            print('报错了：', 'red');
+            print(jsonContent, 'red');
+            console.log(e);
+            fs.writeFile(__dirname + '/error.log', jsonContent);
+            return;
+        }
+
         const miniprogram = configJson.condition.miniprogram;
         const pathName = path.relative(dirs.appRootDir, fileDir);
         const reg = new RegExp('^' + pathName);

@@ -74,7 +74,7 @@ class Watch {
         if(!this.ready) return;
     
         const absPath = path.relative(dirs.appRootDir, filePath.split('.')[0]);
-        console.log('absPath: ' + absPath);
+
         updateAppConfigJson.top(absPath);
     }
     pause(time = 2000) {
