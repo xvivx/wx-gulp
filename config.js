@@ -1,5 +1,5 @@
 const path = require('path');
-const appName = 'app';
+const appName = 'za-goda-xcx';
 const appRootPath = path.resolve(__dirname, appName);
 
 module.exports = {

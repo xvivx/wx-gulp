@@ -1,9 +1,11 @@
 const fs = require('fs');
+const path = require('path');
 const chokidar = require('chokidar');
 const writePageTemplates = require('./writePageTemplates');
 const writeCompTemplates = require('./writeCompTemplates');
 const updateAppJson = require('./updateAppJson');
 const updateAppConfigJson = require('./updateAppConfig');
+const { dirs } = require('../../config');
 
 class Watch {
     constructor() {
@@ -66,6 +68,9 @@ class Watch {
         // console.log('File', filePath, '被删除');
     }
     fileChangeListener(filePath) {
+        const absPath = path.relative(dirs.appRootDir, filePath.split('.')[0]);
+        
+        updateAppConfigJson.top(absPath);
         // console.log('File', filePath, '被更改');
     }
 };
