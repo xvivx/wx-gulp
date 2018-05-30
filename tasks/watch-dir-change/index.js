@@ -36,7 +36,7 @@ class Watch {
         if(!this.ready) {
             return;
         };
-
+        
         const files = fs.readdirSync(dirPath);
 
         // 判断非空目录, 除去.开头的文件
@@ -44,7 +44,7 @@ class Watch {
 
         const dirName = dirPath.match(/[\w\$-]+$/) || [''];
         const [alias, flag] = dirName[0].split('-');
-        
+
         if(/page$/.test(dirPath)) {
             const fileName = flag && alias || 'page';
 
@@ -58,6 +58,9 @@ class Watch {
             // 组件时仅写入文件，无需更新配置
             writeCompTemplates(dirPath, fileName);
         }
+
+        // 减少没必要的IO 2s
+        this.pause(2000);
     }
     directoryRemovedListener(delDir) {
         // 更新app.json和小程序配置
@@ -68,10 +71,18 @@ class Watch {
         // console.log('File', filePath, '被删除');
     }
     fileChangeListener(filePath) {
+        if(!this.ready) return;
+    
         const absPath = path.relative(dirs.appRootDir, filePath.split('.')[0]);
-        
+        console.log('absPath: ' + absPath);
         updateAppConfigJson.top(absPath);
-        // console.log('File', filePath, '被更改');
+    }
+    pause(time = 2000) {
+        this.ready = false;
+
+        setTimeout(() => {
+            this.ready = true;
+        }, time);
     }
 };
 

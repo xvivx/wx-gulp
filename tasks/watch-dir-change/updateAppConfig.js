@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const dirs = require('../../config').dirs;
+const getPackageIndex = require('./updateAppJson').getPackageIndex;
 const console = require('../../utils/log');
 
 module.exports = {
@@ -35,15 +36,18 @@ module.exports = {
     },
     top(pathName) {
         const appJson = JSON.parse(fs.readFileSync(dirs.appJsonDir, { encoding: 'utf8' }));
+        const subPackages = appJson.subPackages || [];
         const pages = appJson.pages;
-
+        const packageName = pathName.split('/')[0];
+        const packageIndex = getPackageIndex(packageName, subPackages);
+        
         let index = pages.indexOf(pathName);
 
         // 如果页面中没有该路径说明不是页面
-        if(index === -1) {
+        if(index === -1 && packageIndex === -1) {
             return;
         }
-
+        
         index = -1;
 
         const configJson = JSON.parse(fs.readFileSync(dirs.configJsonDir, { encoding: 'utf8' }));
