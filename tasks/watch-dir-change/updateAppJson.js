@@ -1,6 +1,8 @@
-const path = require('path');
 const fs = require('fs');
-const dirs = require('../../config').dirs;
+const path = require('path');
+const { getSubPackageIndex } = require('../../utils/tool');
+const { readAppJson, writeAppJson } = require('../../utils/handleAppFile');
+const dirs = require('../../utils/config').dirs;
 
 module.exports = {
     getPackageIndex(packageName, subPackages) {
@@ -13,7 +15,7 @@ module.exports = {
         return -1;
     },
     add(fileDir, fileName) {
-        const appJson = JSON.parse(fs.readFileSync(dirs.appJsonDir, { encoding: 'utf8' }));
+        const appJson = readAppJson();
         const subPackages = appJson.subPackages || [];
         const pathName = path.relative(dirs.appRootDir, fileDir + '/' + fileName);
         const packageRoot = pathName.split('/')[0];
@@ -30,10 +32,10 @@ module.exports = {
             subPackages[packageIndex].pages.push(pathName.replace(packageRoot + '/', ''));
         }
 
-        fs.writeFileSync(dirs.appJsonDir, JSON.stringify(appJson, null, 4));
+        writeAppJson(appJson);
     }, 
     del(fileDir) {
-        const appJson = JSON.parse(fs.readFileSync(dirs.appJsonDir, { encoding: 'utf8' }));
+        const appJson = readAppJson();
         const subPackages = appJson.subPackages || [];
         const pathName = path.relative(dirs.appRootDir, fileDir);
         const packageName = pathName.split('/')[0];
@@ -54,6 +56,6 @@ module.exports = {
             });
         }
 
-        fs.writeFileSync(dirs.appJsonDir, JSON.stringify(appJson, null, 4));
+        writeAppJson(appJson);
     }
 };

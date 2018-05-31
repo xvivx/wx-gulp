@@ -1,13 +1,14 @@
 const path = require('path');
 const fs = require('fs');
-const dirs = require('../../config').dirs;
-const getPackageIndex = require('./updateAppJson').getPackageIndex;
+const { getSubPackageIndex } = require('../../utils/tool');
+const { readConfigJson, writeConfigJson, readAppJson } = require('../../utils/handleAppFile');
+const dirs = require('../../utils/config').dirs;
 const print = require('../../utils/log').log;
 
 module.exports = {
     add(fileDir, fileName) {
         // fileName不含后缀, 由于小程序每个页面或组件下4个文件的名字一样，这里默认的就是无后缀的js文件
-        const configJson = JSON.parse(fs.readFileSync(dirs.configJsonDir, { encoding: 'utf8' }));
+        const configJson = readConfigJson();
         const miniprogram = configJson.condition.miniprogram;
         const pathName = path.relative(dirs.appRootDir, fileDir + '/' + fileName);
 
@@ -19,41 +20,31 @@ module.exports = {
         });
 
         miniprogram.current = miniprogram.list.length - 1;
-        fs.writeFileSync(dirs.configJsonDir, JSON.stringify(configJson, null, 4));
+        writeConfigJson(configJson);
     }, 
     del(fileDir) {
-        let configJson = null;
-        let jsonContent = null;
-
-        try {
-            const jsonContent = fs.readFileSync(dirs.configJsonDir, { encoding: 'utf8' });
-
-            configJson = JSON.parse(jsonContent);
-        } catch (e) {
-            print('报错了：', 'red');
-            print(jsonContent, 'red');
-            console.log(e);
-            fs.writeFile(__dirname + '/error.log', jsonContent);
-            return;
-        }
+        const configJson = readConfigJson();
 
         const miniprogram = configJson.condition.miniprogram;
         const pathName = path.relative(dirs.appRootDir, fileDir);
         const reg = new RegExp('^' + pathName);
-
+        const oldLength = miniprogram.list.length;
+        
         miniprogram.list = miniprogram.list.filter(item => {
             return !reg.test(item.pathName);
         });
 
+        if(oldLength === miniprogram.list.length) return;
+
         miniprogram.current = -1;
-        fs.writeFileSync(dirs.configJsonDir, JSON.stringify(configJson, null, 4));
+        writeConfigJson(configJson);
     },
     top(pathName) {
-        const appJson = JSON.parse(fs.readFileSync(dirs.appJsonDir, { encoding: 'utf8' }));
+        const appJson = readAppJson();
         const subPackages = appJson.subPackages || [];
         const pages = appJson.pages;
         const packageName = pathName.split('/')[0];
-        const packageIndex = getPackageIndex(packageName, subPackages);
+        const packageIndex = getSubPackageIndex(packageName, subPackages);
         
         let index = pages.indexOf(pathName);
 
@@ -64,7 +55,7 @@ module.exports = {
         
         index = -1;
 
-        const configJson = JSON.parse(fs.readFileSync(dirs.configJsonDir, { encoding: 'utf8' }));
+        const configJson = readConfigJson();
         const miniprogram = configJson.condition.miniprogram;
         
         for(let i = 0, length = miniprogram.list.length; i < length; i++) {
@@ -91,7 +82,7 @@ module.exports = {
         }
 
         miniprogram.current = index;
-        fs.writeFileSync(dirs.configJsonDir, JSON.stringify(configJson, null, 4));
-        console.log(`已将${pathName}下的页面置顶`, 'green');
+        writeConfigJson(configJson);
+        print(`已将${pathName}下的页面置顶`, 'green');
     }
 };

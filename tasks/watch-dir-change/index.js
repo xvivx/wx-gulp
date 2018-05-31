@@ -5,7 +5,7 @@ const writePageTemplates = require('./writePageTemplates');
 const writeCompTemplates = require('./writeCompTemplates');
 const updateAppJson = require('./updateAppJson');
 const updateAppConfigJson = require('./updateAppConfig');
-const { dirs } = require('../../config');
+const { dirs, currentPageFixedTop } = require('../../utils/config');
 
 class Watch {
     constructor() {
@@ -33,9 +33,7 @@ class Watch {
         });
     }
     addDirecotryListener(dirPath) {
-        if(!this.ready) {
-            return;
-        };
+        if(!this.ready) return;
         
         const files = fs.readdirSync(dirPath);
 
@@ -51,16 +49,12 @@ class Watch {
             // 写入基本文件，并更新小程序的app.json, 并将当前页面设为激活页面
             writePageTemplates(dirPath, fileName);
             updateAppJson.add(dirPath, fileName);
-            updateAppConfigJson.add(dirPath, fileName);
         } else if(/comp?$/.test(dirPath)) {
             const fileName = flag && alias || 'com';
 
             // 组件时仅写入文件，无需更新配置
             writeCompTemplates(dirPath, fileName);
         }
-
-        // 减少没必要的IO 2s
-        this.pause(2000);
     }
     directoryRemovedListener(delDir) {
         // 更新app.json和小程序配置
@@ -71,10 +65,17 @@ class Watch {
         // console.log('File', filePath, '被删除');
     }
     fileChangeListener(filePath) {
-        if(!this.ready) return;
-    
-        const absPath = path.relative(dirs.appRootDir, filePath.split('.')[0]);
+        if(!this.ready || !currentPageFixedTop) return;
+        
+        this.pause(500);
 
+        const fileRelativeRootPath = filePath.replace(dirs.appRootDir + '/', '');
+
+        if(fileRelativeRootPath === 'app.json' || fileRelativeRootPath === 'project.config.json') {
+            return;
+        }
+        
+        const absPath = fileRelativeRootPath.split('.')[0];
         updateAppConfigJson.top(absPath);
     }
     pause(time = 2000) {

@@ -3,8 +3,7 @@ const gulp = require('gulp');
 const less = require('gulp-less');
 const rename = require('gulp-rename');
 const plumer = require('gulp-plumber');
-const runSequence = require('run-sequence');
-const appName = require('../../config').appName;
+const appEntryPath = require('../../utils/config').entry;
 
 
 module.exports = (entry, output) => {
@@ -20,6 +19,6 @@ module.exports = (entry, output) => {
             .pipe(rename({
                 extname: '.wxss'
             }))
-            .pipe(gulp.dest(output || appName))
+            .pipe(gulp.dest(output || appEntryPath))
     );
-}
+};

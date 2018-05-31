@@ -1,5 +1,4 @@
-const page = `
-Page({
+const page = `Page({
     data: {},
     onShow() {}
 });
@@ -13,8 +12,7 @@ const com = `Component({
     ready() {}
 });`;
 
-const pageJson = `
-{
+const pageJson = `{
     "backgroundTextStyle": "black",
     "navigationBarTitleText": "新页面",
     "usingComponents": {
@@ -28,19 +26,18 @@ const comJson = `
 }
 `;
 
-const less = `import "/common/common.less";`;
-
-const wxml = `
-<view class="wrapper">
+const wxml = `<view class="wrapper">
 
 </view>
 `;
 
+const wxss = ``;
+
 module.exports = {
     page: page,
     com: com,
-    less: less,
     pageJson: pageJson,
     comJson: comJson,
-    wxml: wxml
+    wxml: wxml,
+    wxss: wxss
 };
