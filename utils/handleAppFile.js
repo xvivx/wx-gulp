@@ -27,7 +27,6 @@ const writeAppJson = (content) => {
     if(!content) return;
 
     cache.appJson = content;
-    print(dirs.appJsonDir, 'red')
     fs.writeFile(dirs.appJsonDir, JSON.stringify(content, null, 4), function (err) {
         if(err) {
             console.log(err);
@@ -41,7 +40,6 @@ const writeConfigJson = (content) => {
     
     cache.configJson = content;
 
-    print(content.condition.miniprogram.current, 'red')
     fs.writeFile(dirs.configJsonDir, JSON.stringify(content, null, 4), function (err) {
         if(err) {
             console.log(err);

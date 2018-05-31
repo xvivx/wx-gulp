@@ -6,6 +6,7 @@ const writeCompTemplates = require('./writeCompTemplates');
 const updateAppJson = require('./updateAppJson');
 const updateAppConfigJson = require('./updateAppConfig');
 const { dirs, currentPageFixedTop } = require('../../utils/config');
+const print = require('../../utils/log').log;
 
 class Watch {
     constructor() {
@@ -49,6 +50,10 @@ class Watch {
             // 写入基本文件，并更新小程序的app.json, 并将当前页面设为激活页面
             writePageTemplates(dirPath, fileName);
             updateAppJson.add(dirPath, fileName);
+
+            if(currentPageFixedTop) {
+                updateAppConfigJson.add(dirPath, fileName);
+            }
         } else if(/comp?$/.test(dirPath)) {
             const fileName = flag && alias || 'com';
 
@@ -66,7 +71,8 @@ class Watch {
     }
     fileChangeListener(filePath) {
         if(!this.ready || !currentPageFixedTop) return;
-        
+
+        // 防止框架自己同时修改多个文件引起频繁的IO, 限流500ms
         this.pause(500);
 
         const fileRelativeRootPath = filePath.replace(dirs.appRootDir + '/', '');

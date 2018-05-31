@@ -1,6 +1,6 @@
 const path = require('path');
 
-let defaultConfig = require('../config');
+let defaultConfig = require('../default.config');
 let customConfig = null;
 
 try {
