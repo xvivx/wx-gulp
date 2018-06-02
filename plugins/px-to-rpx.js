@@ -1,12 +1,11 @@
 const through = require('through2');
 const gutil = require('gulp-util');
 const PluginError = gutil.PluginError;
+
 const cache = require('../utils/cache');
 
 const pxToRpxPlugin = function () {
     return through.obj(function (file, enc, done) {
-        console.log('编译wxss...');
-
         if(!file.isBuffer()) {
             this.emit('error', new PluginError('px-to-rpx', '仅支持Buffer类型！'));
             return done();

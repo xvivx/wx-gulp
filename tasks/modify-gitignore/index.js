@@ -1,11 +1,11 @@
 const gulp = require('gulp');
 const plumer = require('gulp-plumber');
 
-const pxToRpx = require('../../plugins/px-to-rpx');
+const gitignore = require('../../plugins/modify-git-ignore');
 const appEntryPath = require('../../utils/config').entry;
 
 
-module.exports = (entry, output) => {
+module.exports = (entry) => {
     return (
         gulp.src(entry)
             .pipe(plumer({
@@ -14,7 +14,7 @@ module.exports = (entry, output) => {
                     this.emit('end');
                 }
             }))
-            .pipe(pxToRpx())
-            .pipe(gulp.dest(output || appEntryPath))
+            .pipe(gitignore())
+            .pipe(gulp.dest(process.cwd()))
     );
 };

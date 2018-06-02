@@ -8,9 +8,11 @@ const gulpWatch = require('gulp-watch');
 
 const less = require('./tasks/less');
 const wxss = require('./tasks/wxss');
+const gitignore = require('./tasks/modify-gitignore');
 const Watch = require('./tasks/watch-dir-change');
 const { dirs, entry, output } = require('./utils/config');
 const { useLess } = require('./utils/config');
+const print = require('./utils/log').log;
 
 
 // gulp tasks
@@ -20,14 +22,17 @@ gulp.task('watch:dir:change', () => {
 });
 
 
-// wt(dirs.appRootDir);
-
+gulp.task('modify:gitignore', () => {
+    return gitignore(__dirname + '/.gitignore');
+});
 
 // 编译less
 gulp.task('wxss', () => {
-    const lessGlobs = [entry + '/**/*.wxss'];
+    const wxssGlobs = [entry + '/**/*.wxss'];
     
-    return wxss(lessGlobs);
+    return wxss(wxssGlobs).on('finish', () => {
+        print('wxss编译完毕。', 'green');
+    });
 });
 
 gulp.task('watch:wxss', () => {
@@ -101,5 +106,5 @@ gulp.task('dev', (cb) => {
     return runSequence(...devTasks, cb);
 });
 gulp.task('build', (cb) => {
-    return runSequence('clean:output', 'copy:files', 'image:min', cb);
+    return runSequence('clean:output', 'copy:files', 'image:min', 'modify:gitignore', cb);
 });
