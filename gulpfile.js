@@ -7,9 +7,11 @@ const runSequence = require('run-sequence');
 const gulpWatch = require('gulp-watch');
 
 const less = require('./tasks/less');
+const wxss = require('./tasks/wxss');
+const Watch = require('./tasks/watch-dir-change');
 const { dirs, entry, output } = require('./utils/config');
 const { useLess } = require('./utils/config');
-const Watch = require('./tasks/watch-dir-change');
+
 
 // gulp tasks
 gulp.task('watch:dir:change', () => {
@@ -17,12 +19,38 @@ gulp.task('watch:dir:change', () => {
     return new Watch().startWatch(dirs.appRootDir);
 });
 
+
+// wt(dirs.appRootDir);
+
+
+// 编译less
+gulp.task('wxss', () => {
+    const lessGlobs = [entry + '/**/*.wxss'];
+    
+    return wxss(lessGlobs);
+});
+
+gulp.task('watch:wxss', () => {
+    return gulpWatch(`${__dirname}/${entry}/**/*.wxss`, (detail) => {
+        // 只针对变化的less文件进行编译
+        if(detail.event === 'change') {
+            const input = entry + '/' + path.relative(dirs.appRootDir, detail.path);
+            const output = input.replace(/\/\w+\.wxss$/, '');
+
+            return wxss(input, output);
+        }
+    });
+});
+
 gulp.task('watch:less', () => {
     return gulpWatch(`${__dirname}/${entry}/**/*.less`, (detail) => {
-        // 只针对变化的less文件进行编译
-        const entry = entry + detail.path.split(entry)[1];
-        const output = entry.replace(/\/\w+\.less$/, '');
-        return less(entry, output);
+        if(detail.event === 'change') {
+            // 只针对变化的less文件进行编译
+            const input = entry + '/' + path.relative(dirs.appRootDir, detail.path);
+            const output = input.replace(/\/\w+\.less$/, '');
+
+            return less(input, output);
+        }
     });
 });
 
@@ -63,13 +91,15 @@ gulp.task('clean:output', (cb) => {
 });
 
 // 开发任务
-const devTasks = ['watch:dir:change'];
+const devTasks = ['wxss', 'watch:wxss', 'watch:dir:change'];
 
 if(useLess) {
     devTasks.push('less', 'watch:less');
 }
 
-gulp.task('dev', devTasks);
+gulp.task('dev', (cb) => {
+    return runSequence(...devTasks, cb);
+});
 gulp.task('build', (cb) => {
     return runSequence('clean:output', 'copy:files', 'image:min', cb);
 });

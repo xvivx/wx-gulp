@@ -6,5 +6,5 @@ npm-debug.log
 npm-error.log
 yarn-error.log
 *.zip
-/app/
+/wx-app/
 /custom.config.js
