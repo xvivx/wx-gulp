@@ -96,14 +96,14 @@ gulp.task('clean:output', (cb) => {
 });
 
 // 开发任务
-const devTasks = ['wxss', 'watch:wxss', 'watch:dir:change'];
+const devTasks = ['watch:dir:change'];
 
 if(useLess) {
-    devTasks.push('less', 'watch:less');
+    // devTasks.push('less', 'watch:less');
 }
 
 gulp.task('dev', (cb) => {
-    return runSequence(...devTasks, cb);
+    return runSequence(devTasks, cb);
 });
 gulp.task('build', (cb) => {
     return runSequence('clean:output', 'copy:files', 'image:min', 'modify:gitignore', cb);
