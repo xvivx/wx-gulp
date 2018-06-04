@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const tmpl = require('./templates');
-const dirs = require('../../utils/config').dirs;
 
 module.exports = (fileDir, fileName, isPage = true) => {
     const filePath = `${fileDir + '/' + fileName}`;

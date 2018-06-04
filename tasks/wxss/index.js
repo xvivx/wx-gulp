@@ -2,7 +2,6 @@ const gulp = require('gulp');
 const plumer = require('gulp-plumber');
 
 const pxToRpx = require('../../plugins/px-to-rpx');
-const appEntryPath = require('../../utils/config').entry;
 
 
 module.exports = (entry, output) => {
@@ -15,6 +14,6 @@ module.exports = (entry, output) => {
                 }
             }))
             .pipe(pxToRpx())
-            .pipe(gulp.dest(output || appEntryPath))
+            .pipe(gulp.dest(output))
     );
 };
