@@ -2,8 +2,11 @@ const path = require('path');
 const fs = require('fs');
 const { getSubPackageIndex } = require('../../utils/tool');
 const { readConfigJson, writeConfigJson, readAppJson } = require('../../utils/handleAppFile');
-const dirs = require('../../utils/config').dirs;
 const print = require('../../utils/log').log;
+
+const dirs = {
+    appRootDir: process.cwd()
+};
 
 module.exports = {
     add(fileDir, fileName) {

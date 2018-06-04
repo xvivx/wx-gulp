@@ -1,7 +1,11 @@
 const fs = require('fs');
-const dirs = require('./config').dirs;
 const print = require('./log').log;
 const cache = {};
+
+const dirs = {
+    appJsonDir: process.cwd() + '/app.json',
+    configJsonDir: process.cwd() + '/project.config.json'
+};
 
 const readAppJson = () => {
     if(cache.appJson) {

@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const { getSubPackageIndex } = require('../../utils/tool');
 const { readAppJson, writeAppJson } = require('../../utils/handleAppFile');
-const dirs = require('../../utils/config').dirs;
+
+const dirs = {
+    appRootDir: process.cwd()
+};
 
 module.exports = {
     getPackageIndex(packageName, subPackages) {

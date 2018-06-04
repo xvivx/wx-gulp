@@ -5,8 +5,13 @@ const writePageTemplates = require('./writePageTemplates');
 const writeCompTemplates = require('./writeCompTemplates');
 const updateAppJson = require('./updateAppJson');
 const updateAppConfigJson = require('./updateAppConfig');
-const { dirs, currentPageFixedTop } = require('../../utils/config');
 const print = require('../../utils/log').log;
+
+const dirs = {
+    appRootDir: process.cwd()
+};
+
+const currentPageFixedTop = true;
 
 class Watch {
     constructor() {
@@ -71,7 +76,6 @@ class Watch {
     }
     fileChangeListener(filePath) {
         if(!this.ready || !currentPageFixedTop) return;
-
         // 防止框架自己同时修改多个文件引起频繁的IO, 限流500ms
         this.pause(500);
 

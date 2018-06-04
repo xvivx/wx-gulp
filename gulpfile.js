@@ -14,97 +14,105 @@ const { dirs, entry, output } = require('./utils/config');
 const { useLess } = require('./utils/config');
 const print = require('./utils/log').log;
 
-
-// gulp tasks
-gulp.task('watch:dir:change', () => {
-    // 监控项目目录变化
-    return new Watch().startWatch(dirs.appRootDir);
-});
+const appRootDir = process.cwd();
 
 
-gulp.task('modify:gitignore', () => {
-    return gitignore(__dirname + '/.gitignore');
-});
-
-// 编译less
-gulp.task('wxss', () => {
-    const wxssGlobs = [entry + '/**/*.wxss'];
+module.exports = function () {
+    // gulp tasks
+    gulp.task('watch:dir:change', () => {
+        // 监控项目目录变化
+        return new Watch().startWatch([appRootDir, '!' + appRootDir + '/wx-gulp/**/*.*', '!' + appRootDir + '/gulpfile.js']);
+    });
     
-    return wxss(wxssGlobs).on('finish', () => {
-        print('wxss编译完毕。', 'green');
+    
+    gulp.task('modify:gitignore', () => {
+        return gitignore(__dirname + '/.gitignore');
     });
-});
-
-gulp.task('watch:wxss', () => {
-    return gulpWatch(`${__dirname}/${entry}/**/*.wxss`, (detail) => {
-        // 只针对变化的less文件进行编译
-        if(detail.event === 'change') {
-            const input = entry + '/' + path.relative(dirs.appRootDir, detail.path);
-            const output = input.replace(/\/\w+\.wxss$/, '');
-
-            return wxss(input, output);
-        }
+    
+    // 编译wxss
+    gulp.task('wxss', () => {
+        const wxssGlobs = [appRootDir + '/**/*.wxss'];
+        
+        return wxss(wxssGlobs).on('finish', () => {
+            print('wxss编译完毕。', 'green');
+        });
     });
-});
-
-gulp.task('watch:less', () => {
-    return gulpWatch(`${__dirname}/${entry}/**/*.less`, (detail) => {
-        if(detail.event === 'change') {
+    
+    gulp.task('watch:wxss', () => {
+        return gulpWatch(`${appRootDir}/**/*.wxss`, (detail) => {
             // 只针对变化的less文件进行编译
-            const input = entry + '/' + path.relative(dirs.appRootDir, detail.path);
-            const output = input.replace(/\/\w+\.less$/, '');
-
-            return less(input, output);
-        }
-    });
-});
-
-// 编译less
-gulp.task('less', () => {
-    const lessGlobs = [entry + '/**/*.less', `!${entry}/common/**/*.less`];
+            if(detail.event === 'change') {
+                const input = entry + '/' + path.relative(dirs.appRootDir, detail.path);
+                const output = input.replace(/\/\w+\.wxss$/, '');
     
-    return less(lessGlobs);
-});
-
-// 发布时复制文件到生产目录
-gulp.task('copy:files', () => {
-    return (
-        gulp.src([
-            `${entry}/**/*`, 
-            `!${entry}/**/*.less`, 
-            `!${entry}/**/*.+(png|jpeg|jpg|svg|gif)`
-        ])
-        .pipe(gulp.dest(output))
-    );
-});
-
-// 压缩图片文件
-gulp.task('image:min', () => {
-    return (
-        gulp.src(`${entry}/**/*.+(png|jpeg|jpg|svg|gif)`)
-        .pipe(imagemin({
-            progressive: true,
-            optimizationLevel: 3,
-            interlaced: true
-        }))
-        .pipe(gulp.dest(output))
-    );
-});
-
-gulp.task('clean:output', (cb) => {
-    return del(output);
-});
-
-// 开发任务
-const devTasks = ['watch:dir:change'];
-
-if(useLess) {
-    // devTasks.push('less', 'watch:less');
+                return wxss(input, output);
+            }
+        });
+    });
+    
+    gulp.task('watch:less', () => {
+        return gulpWatch(`${appRootDir}/**/*.less`, (detail) => {
+            if(detail.event === 'change') {
+                // 只针对变化的less文件进行编译
+                const input = entry + '/' + path.relative(dirs.appRootDir, detail.path);
+                const output = input.replace(/\/\w+\.less$/, '');
+    
+                return less(input, output);
+            }
+        });
+    });
+    
+    // 编译less
+    gulp.task('less', () => {
+        const lessGlobs = [appRootDir + '/**/*.less'];
+        
+        return less(lessGlobs);
+    });
+    
+    // 发布时复制文件到生产目录
+    gulp.task('copy:files', () => {
+        return (
+            gulp.src([
+                `${appRootDir}`, 
+                `!${appRootDir}/**/*.less`, 
+                `!${appRootDir}/wx-gulp`, 
+                `!${appRootDir}/gulpfile.js`, 
+                `!${appRootDir}/package.json`, 
+                `!${appRootDir}/yarn.lock`, 
+                `!${appRootDir}/**/*.+(png|jpeg|jpg|svg|gif)`
+            ])
+            .pipe(gulp.dest(output))
+        );
+    });
+    
+    // 压缩图片文件
+    gulp.task('image:min', () => {
+        return (
+            gulp.src(`${appRootDir}/**/*.+(png|jpeg|jpg|svg|gif)`)
+            .pipe(imagemin({
+                progressive: true,
+                optimizationLevel: 7,
+                interlaced: true
+            }))
+            .pipe(gulp.dest(output))
+        );
+    });
+    
+    gulp.task('clean:output', (cb) => {
+        return del(output);
+    });
+    
+    // 开发任务
+    const devTasks = ['watch:dir:change', 'watch:wxss'];
+    
+    if(useLess) {
+        // devTasks.push('less', 'watch:less');
+    }
+    
+    gulp.task('dev', (cb) => {
+        return runSequence(devTasks, cb);
+    });
+    gulp.task('build', (cb) => {
+        return runSequence('clean:output', 'copy:files', 'image:min', cb);
+    });
 }
-
-gulp.task('dev', (cb) => {
-    return runSequence(devTasks, cb);
-});
-gulp.task('build', (cb) => {
-    return runSequence('clean:output', 'copy:files', 'image:min', 'modify:gitignore', cb);
-});
