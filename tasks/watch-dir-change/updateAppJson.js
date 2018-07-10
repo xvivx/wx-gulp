@@ -1,11 +1,7 @@
-const fs = require('fs');
 const path = require('path');
-const { getSubPackageIndex } = require('../../utils/tool');
 const { readAppJson, writeAppJson } = require('../../utils/handleAppFile');
+const print = require('../../utils/log').log;
 
-const dirs = {
-    appRootDir: process.cwd()
-};
 
 module.exports = {
     getPackageIndex(packageName, subPackages) {
@@ -17,10 +13,10 @@ module.exports = {
 
         return -1;
     },
-    add(fileDir, fileName) {
+    add(fileDir, fileName, rootDir) {
         const appJson = readAppJson();
         const subPackages = appJson.subPackages || [];
-        const pathName = path.relative(dirs.appRootDir, fileDir + '/' + fileName);
+        const pathName = path.relative(rootDir, fileDir + '/' + fileName);
         const packageRoot = pathName.split('/')[0];
 
         // 主包比较复杂，不规范的项目可能页面所在目录无法预估，所以先判断副包
@@ -36,11 +32,12 @@ module.exports = {
         }
 
         writeAppJson(appJson);
+        print(`新增${fileDir}下的页面`, 'yellow');
     }, 
-    del(fileDir) {
+    del(fileDir, rootDir) {
         const appJson = readAppJson();
         const subPackages = appJson.subPackages || [];
-        const pathName = path.relative(dirs.appRootDir, fileDir);
+        const pathName = path.relative(rootDir, fileDir);
         const packageName = pathName.split('/')[0];
 
         let packageIndex = this.getPackageIndex(packageName, subPackages);

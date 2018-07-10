@@ -1,17 +1,9 @@
 const fs = require('fs');
-const path = require('path');
 const chokidar = require('chokidar');
 const writePageTemplates = require('./writePageTemplates');
 const writeCompTemplates = require('./writeCompTemplates');
 const updateAppJson = require('./updateAppJson');
 const updateAppConfigJson = require('./updateAppConfig');
-const print = require('../../utils/log').log;
-
-const dirs = {
-    appRootDir: process.cwd()
-};
-
-const currentPageFixedTop = true;
 
 class Watch {
     constructor() {
@@ -41,7 +33,6 @@ class Watch {
     }
     addDirecotryListener(dirPath) {
         if(!this.ready) return;
-        
         const files = fs.readdirSync(dirPath);
 
         // 判断非空目录, 除去.开头的文件
@@ -55,11 +46,8 @@ class Watch {
 
             // 写入基本文件，并更新小程序的app.json, 并将当前页面设为激活页面
             writePageTemplates(dirPath, fileName);
-            updateAppJson.add(dirPath, fileName);
-
-            if(currentPageFixedTop) {
-                updateAppConfigJson.add(dirPath, fileName);
-            }
+            updateAppJson.add(dirPath, fileName, this.watcherDir);
+            updateAppConfigJson.add(dirPath, fileName, this.watcherDir);
         } else if(/comp?$/.test(dirPath)) {
             const fileName = flag && alias || 'com';
 
@@ -69,14 +57,14 @@ class Watch {
     }
     directoryRemovedListener(delDir) {
         // 更新app.json和小程序配置
-        updateAppJson.del(delDir);
-        updateAppConfigJson.del(delDir);
+        updateAppJson.del(delDir, this.watcherDir);
+        updateAppConfigJson.del(delDir, this.watcherDir);
     }
     fileRemovedListener(filePath) {
         // console.log('File', filePath, '被删除');
     }
     fileChangeListener(filePath) {
-        if(!this.ready || !currentPageFixedTop) return;
+        if(!this.ready) return;
         // 防止框架自己同时修改多个文件引起频繁的IO, 限流500ms
         this.pause(500);
 

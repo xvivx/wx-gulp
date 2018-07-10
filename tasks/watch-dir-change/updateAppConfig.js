@@ -1,19 +1,15 @@
 const path = require('path');
-const fs = require('fs');
 const { getSubPackageIndex } = require('../../utils/tool');
 const { readConfigJson, writeConfigJson, readAppJson } = require('../../utils/handleAppFile');
 const print = require('../../utils/log').log;
 
-const dirs = {
-    appRootDir: process.cwd()
-};
 
 module.exports = {
-    add(fileDir, fileName) {
+    add(fileDir, fileName, rootDir) {
         // fileName不含后缀, 由于小程序每个页面或组件下4个文件的名字一样，这里默认的就是无后缀的js文件
         const configJson = readConfigJson();
         const miniprogram = configJson.condition.miniprogram;
-        const pathName = path.relative(dirs.appRootDir, fileDir + '/' + fileName);
+        const pathName = path.relative(rootDir, fileDir + '/' + fileName);
 
         miniprogram.list.push({
             id: Date.now(),
@@ -25,11 +21,11 @@ module.exports = {
         miniprogram.current = miniprogram.list.length - 1;
         writeConfigJson(configJson);
     }, 
-    del(fileDir) {
+    del(fileDir, rootDir) {
         const configJson = readConfigJson();
 
         const miniprogram = configJson.condition.miniprogram;
-        const pathName = path.relative(dirs.appRootDir, fileDir);
+        const pathName = path.relative(rootDir, fileDir);
         const reg = new RegExp('^' + pathName);
         const oldLength = miniprogram.list.length;
         
