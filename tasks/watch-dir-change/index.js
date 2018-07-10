@@ -28,6 +28,7 @@ class Watch {
         if(this.watcher) return;
         
         this.watcher = chokidar.watch(dir);
+        this.watcherDir = this.watcherDir || dir[0];
         this.watcher.on('addDir', this.addDirecotryListener);
         this.watcher.on('unlinkDir', this.directoryRemovedListener);
         this.watcher.on('unlink', this.fileRemovedListener);
@@ -79,7 +80,7 @@ class Watch {
         // 防止框架自己同时修改多个文件引起频繁的IO, 限流500ms
         this.pause(500);
 
-        const fileRelativeRootPath = filePath.replace(dirs.appRootDir + '/', '');
+        const fileRelativeRootPath = filePath.replace(this.watcherDir + '/', '');
 
         if(fileRelativeRootPath === 'app.json' || fileRelativeRootPath === 'project.config.json') {
             return;
