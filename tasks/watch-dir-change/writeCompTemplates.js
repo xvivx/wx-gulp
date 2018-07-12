@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 const tmpl = require('./templates');
 
 module.exports = (fileDir, fileName, isPage = true) => {
