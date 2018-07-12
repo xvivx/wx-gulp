@@ -8,8 +8,10 @@ const gulpWatch = require('gulp-watch');
 const less = require('./tasks/less');
 const wxss = require('./tasks/wxss');
 const Watch = require('./tasks/watch-dir-change');
+const setAppDir = require('./utils/handleAppFile').setAppDir;
 
 module.exports = function (appRootDir = process.cwd(), outputDir = appRootDir + '/dist') {
+    setAppDir(appRootDir);
     // gulp tasks
     gulp.task('watch:dir:change', () => {
         // 监控项目目录变化

@@ -2,8 +2,8 @@ const fs = require('fs');
 const cache = {};
 
 const dirs = {
-    appJsonDir: process.cwd() + '/app/app.json',
-    configJsonDir: process.cwd() + '/app/project.config.json'
+    appJsonDir: '',
+    configJsonDir: ''
 };
 
 const readAppJson = () => {
@@ -55,5 +55,9 @@ module.exports = {
     readAppJson,
     readConfigJson,
     writeAppJson,
-    writeConfigJson
+    writeConfigJson,
+    setAppDir(appDir) {
+        dirs.appJsonDir = appDir + '/app.json';
+        dirs.configJsonDir = appDir + '/project.config.json';
+    }
 };
